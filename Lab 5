@@ -23,9 +23,8 @@ void in2Post(char* infix, char* postfix)
             y++;
         }
         else if(infix[i] == '(')
-        {
             push(&s , infix[i]);
-        }
+            
         else if(infix[i] == ')')
         {
             while(peek(s) != '(')
