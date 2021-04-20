@@ -15,3 +15,122 @@ not have to insert at the end of the link-list.
 ListNode * HashSearch ( HashTable *, int) ;
 int HashInsert ( HashTable * , int );
 
+void dualSearch(int A[], int size, int K, int dualIndex[])
+{
+    int i;
+    int j;
+    int sum;
+    for(i=0;i < size;i++)
+    {
+        for(j = 0;j<size;j++)
+        {
+            sum = A[i] + A[j];
+            if(sum == K)
+            {
+                 dualIndex[0] = A[i];
+                 dualIndex[1] = A[j];
+                 return;
+            }
+        }
+    }
+}
+
+void dualSortedSearch(int A[], int size, int K, int dualIndex[])
+{
+    int cur;
+    int pre;
+    int i;
+    int j;
+    int k;
+    if(size == 1)
+        return;
+    else
+    {
+        cur = size/2;
+        pre = cur + 1;
+        if(A[cur-1] + A[pre-1] == K || A[cur-1] + A[cur-1] == K)
+        {
+            dualIndex[0] = A[cur-1];
+            dualIndex[1] = A[pre-1];
+            return;
+        }
+        else if(A[cur-1] + A[pre-1] > K)
+        {
+            j = 0;
+            for(i = 0;i < cur;i++)
+            {
+                A[i] = A[j];
+                j++;
+            }
+            if(size % 2 == 0)
+                size /= 2;
+            else
+                size = size/2 + 1;
+            return dualSortedSearch(A , size , K , dualIndex);
+        }
+        else
+        {
+            j = cur;
+            for(i = 0;i < pre;i++)
+            {
+                A[i] = A[j];
+                j++;
+            }
+            if(size % 2 == 0)
+                size /= 2;
+            else
+                size = size/2 + 1;
+            return dualSortedSearch(A , size , K , dualIndex);
+        }
+    }
+
+}
+
+ListNode* HashSearch(HashTable Q3Hash, int key)
+{
+    int ht = Hash(key , Q3Hash.hSize);
+    if(Q3Hash.Table[ht].size == 0)
+        return NULL;
+    else
+    {
+        ListNode *temp = Q3Hash.Table[ht].head;
+        while(temp != NULL)
+        {
+            if(temp->key == key)
+                return temp;
+            temp = temp->next;
+        }
+        if(temp == NULL)
+            return NULL;
+    }
+}
+
+int HashInsert(HashTable* Q3HashPtr, int key)
+{
+    ListNode *newnode = malloc(sizeof(ListNode)); //create node of linked list
+    int ht = Hash(key , Q3HashPtr->hSize);    // finding the slot on hash table of key
+    newnode->key = key;
+    newnode->next = NULL;
+
+    int num = Q3HashPtr->Table[ht].size;
+    if(num == 0)
+    {
+        ++Q3HashPtr->Table[ht].size;
+        Q3HashPtr->Table[ht].head = newnode;
+        return 1;
+    }
+    else
+    {
+        ++Q3HashPtr->Table[ht].size;
+        ListNode *headlist = Q3HashPtr->Table[ht].head;
+        ListNode *temp = Q3HashPtr->Table[ht].head;
+        while(temp->next != NULL)
+        {
+            if(temp->key == key)
+                return 0;
+            temp = temp->next;
+        }
+        temp->next = newnode;
+    }
+
+}
