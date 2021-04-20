@@ -10,6 +10,6 @@ numbers. The function prototype is given below:
 
 double exePostfix ( char * postfix )
 
-Write a C program to convert an infix expression to a prefix expression.
+Q3 Write a C program to convert an infix expression to a prefix expression.
 
 void in2Pre ( char * infix , char * prefix )
