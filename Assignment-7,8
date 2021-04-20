@@ -1,0 +1,191 @@
+Q1 Write a function, BFS(), to find the shortest distance from vertex v to vertex w, in a directed graph.
+Vertices ranged from 1 to |V |. The distance is measured by the number of edges. If there is no path
+from v to w, then -1 is returned. You may assume that the input graph is always valid (no duplicate
+or any invalid link etc.).
+
+Q2 Write a function, CC(), to determine if a directed graph is strongly connected or not. Vertices ranged
+from 1 to |V |. You may assume that the input graph is always valid (no duplicate or invalid link etc.).
+
+Q3 Write a function, sumToC() to determine and print all possible sequences in ascending positive integers
+that are summed to give a positive integer C where C < 50.
+
+Q4 In CX4321, each student will be assigned to a project and a mentor. Students has their own preferences
+but each project or mentor can only be assigned to one of the students. The course coordinator needs an
+algorithm to maximize the matching between students and projects and between students and mentors.
+
+int BFS (Graph g, int v, int w)
+{
+    int visited[g.V];
+    int adj[g.V];
+    int i;
+
+    for(i = 0;i < g.V;i++)
+    {
+        visited[i] = 0;
+        adj[i] = 0;
+    }
+
+    Queue q;
+    q.size = 0;
+    q.head = q.tail = NULL;
+
+    enqueue(&q , v);
+    visited[v-1] = 1;
+    adj[v-1] = 0;
+
+    while(!isEmptyQueue(q))
+    {
+        int r = getFront(q);
+        dequeue(&q);
+        ListNode *temp = g.list[r-1];
+
+        while(temp != NULL)
+        {
+            int slot = temp->vertex;
+            if(slot == w)
+                return adj[r-1]+1;
+
+            if(visited[slot-1] == 0)
+            {
+                visited[slot-1] = 1;
+                enqueue(&q , slot);
+                adj[slot-1] = adj[r-1]+1;
+            }
+            temp = temp->next;
+        }
+    }
+    return -1;
+}
+
+int path(Graph g , int v1 , int v2)
+{
+    int visited[g.V];
+    int i;
+    for(i = 0;i < g.V;i++)
+        visited[i] = 0;
+    Queue q;
+    q.size = 0;
+    q.head = q.tail = NULL;
+
+    enqueue(&q , v1);
+    visited[v1-1] = 1;
+
+    while(!isEmptyQueue(q))
+    {
+        int w = getFront(q);
+        dequeue(&q);
+        ListNode *temp = g.list[w-1];
+        while(temp != NULL)
+        {
+            int slot = temp->vertex;
+            if(slot == v2)
+                return 1;
+            if(visited[slot-1] == 0)
+            {
+                visited[slot-1] = 1;
+                enqueue(&q , slot);
+            }
+
+            temp = temp->next;
+        }
+
+    }
+    return 0;
+
+}
+int CC (Graph g)
+{
+    int i,j;
+    for(i = 1;i <= g.V;i++)
+    {
+        for(j = 1;j <= g.V;j++)
+        {
+            if(i == j)
+                continue;
+            if(path(g , i , j) != 1)
+                return 0;
+        }
+    }
+    return 1;
+}
+
+void sumToC(LinkedList* ll, int C, ArrayList* al)
+{
+    int i;
+    int j;
+    int k = 0;
+    int lastitem;
+    int end;
+
+    if(ll->sum == C)
+    {
+        k = 0;
+        al->size += 1;
+        ArrayNode *arraytemp = malloc(sizeof(ArrayNode));
+        arraytemp->itemArray = calloc(ll->size , sizeof(int));
+        arraytemp->sizeArray = ll->size;
+        arraytemp->next = NULL;
+
+        ListNode *temp = ll->head;
+        while(temp != NULL)
+        {
+            arraytemp->itemArray[k] = temp->item;
+            temp = temp->next;
+            k++;
+        }
+        if(al->head == NULL)
+            al->head = arraytemp;
+        else
+        {
+            ArrayNode *insarr = al->head;
+            while(insarr->next != NULL)
+                insarr = insarr->next;
+            insarr->next = arraytemp;
+        }
+    }
+    else
+    {
+        ListNode *last = ll->head;
+        if(last == NULL)
+            lastitem = 0;
+        else
+        {
+            while(last != NULL)
+            {
+                last = last->next;
+                lastitem++;
+            }
+        }
+        for(j = lastitem+1 ;j <= C;j++)
+        {
+            if((ll->sum) + j <= C)
+            {
+                ListNode *lastnode = ll->head;
+                if(lastnode == NULL)
+                    end = 0;
+                else
+                {
+                    while(lastnode->next != NULL)
+                    {
+                        lastnode = lastnode->next;
+                    }
+                    end = lastnode->item;
+                }
+
+
+
+                if(j > end)
+                {
+                    insertNode(ll , ll->size , j);
+                    sumToC(ll , C , al);
+                    removeNode(ll , (ll->size)-1);
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+    }
+
+}
