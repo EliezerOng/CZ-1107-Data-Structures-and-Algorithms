@@ -1,0 +1,227 @@
+Q1 Given a character string of integer arithmetic expression, write a function, expressionLL() to split the
+operands and operators into a linked list. We assumed that the character string only contains digits,
+operators (‘+’, ‘-’, ‘*’ and ‘/’) and parentheses.
+
+Q2 Write a function, in2preLL() to covert an infix expression into a prefix expression linked list. We assumed
+that the character string only contains positive integer numbers, operators (‘+’, ‘-’, ‘*’ and ‘/’) and
+parentheses.
+
+Q3 Write a function, createExptree() to create an expression tree structure by using a prefix expression.
+Each element (operands, operators, parenthese) in the prefix expression is seperated by a white space.
+
+void expressionLL(char* infix, LinkedList *inExpLL)
+{
+    ListNode *nex = NULL;
+    ListNode *prev = NULL;
+    int i = 0;
+    int num = 0;
+    while(infix[i] != '\0')
+    {
+        if(infix[i] >= 49 && infix[i] <= 57)
+        {
+            if(infix[i+1] < 49 || infix[i+1] >57)
+                insertNode(inExpLL , infix[i] - 48 , OPERAND);
+            else
+            {
+                num = 0;
+                while(infix[i] >= 49 && infix[i] <= 57)
+                {
+                    num *= 10;
+                    num += infix[i] - 48;
+                    i++;
+                }
+                insertNode(inExpLL , num , OPERAND);
+                continue;
+            }
+        }
+        else
+            insertNode(inExpLL, infix[i] , OPT);
+        i++;
+    }
+    ListNode *head = inExpLL->head;
+    while(head != NULL)
+    {
+        nex = head->next;
+        head->next = prev;
+        prev = head;
+        head = nex;
+    }
+    inExpLL->head = prev;
+}
+
+void in2PreLL(char* infix, LinkedList *inExpLL)
+{
+    Stack s;
+    s.head = NULL;
+    s.size = 0;
+    LinkedList newLL;
+    newLL.head = NULL;
+    newLL.size = 0;
+    int i = 0;
+
+    while(infix[i] != '\0')
+    {
+        if(infix[i] >= 49 && infix[i] <= 57)
+        {
+            int num = 0;
+            int mul = 1;
+            while(infix[i] >= 49 && infix[i] <= 57)
+            {
+                num = mul * num + (infix[i] - 48);
+                mul = 10;
+                i++;
+            }
+            insertNode(&newLL , num , OPERAND);
+            continue;
+        }
+        else
+            insertNode(&newLL , infix[i] , OPT);
+        i++;
+    }
+    ListNode *temp = newLL.head;
+    while(temp != NULL)
+    {
+        if(temp->item == '+' || temp->item == '-' || temp->item == '*' || temp->item == '/')
+        {
+            while(!isEmptyStack(s) && peek(s) != ')' && (precedence(peek(s)) > precedence(temp->item)))
+            {
+                insertNode(inExpLL , peek(s) , OPT);
+                pop(&s);
+           }
+            push(&s , temp->item);
+
+        }
+        else if(temp->item == ')')
+        {
+            push(&s , temp->item);
+        }
+        else if(temp->item == '(')
+        {
+            while(peek(s) != ')')
+            {
+                insertNode(inExpLL , peek(s) , OPT);
+                pop(&s);
+            }
+            pop(&s);
+        }
+        else
+        {
+            insertNode(inExpLL , temp->item , OPERAND);
+        }
+        temp = temp->next;
+    }
+    while(!isEmptyStack(s))
+    {
+        insertNode(inExpLL , peek(s) , OPT);
+        pop(&s);
+    }
+}
+
+void createExpTree(BTNode** root,char* prefix)
+{
+    Stack s;
+    s.head = NULL;
+    s.size = 0;
+    int i;
+    int j = 0;
+    char revPrefix[SIZE];
+
+    int count;
+    while(prefix[count] != '\0')count++;
+    for(i = count - 1;i >= 0;i--)
+    {
+        revPrefix[j++] = prefix[i];
+    }
+    revPrefix[count] = '\0';
+    i = 0;
+    while(revPrefix[i] != '\0')
+    {
+        if(revPrefix[i] >= 49 && revPrefix[i] <= 57)
+        {
+            int num = 0;
+            int mul = 1;
+            BTNode *newnum = malloc(sizeof(BTNode));
+            newnum->left = newnum->right = NULL;
+            while(revPrefix[i] != ' ')
+            {
+                num = ((revPrefix[i] - 48) * mul) + num;
+                mul *= 10;
+                i++;
+            }
+            newnum->item = num;
+            push(&s , newnum);
+            continue;
+        }
+        else if(revPrefix[i] == ' ')
+        {
+            i++;
+            continue;
+        }
+        else if(revPrefix[i] == '+' || revPrefix[i] == '-' || revPrefix[i] == '*' || revPrefix[i] == '/')
+        {
+            BTNode *temp = malloc(sizeof(BTNode));
+            BTNode *left;
+            BTNode *right;
+            left = peek(s);
+            pop(&s);
+            right = peek(s);
+            pop(&s);
+            temp->item = revPrefix[i];
+            temp->left = left;
+            temp->right = right;
+            push(&s , temp);
+            i++;
+            continue;
+        }
+    }
+    *root = peek(s);
+    pop(&s);
+}
+
+void printTree(BTNode *node)
+{
+    BTNode *temp = node;
+    if(temp == NULL)
+        return NULL;
+    printTree(temp->left);
+    if(temp->left != NULL)
+        printf("%c " , temp->item);
+    else
+        printf("%d " , temp->item);
+    printTree(temp->right);
+
+}
+
+
+void printTreePostfix(BTNode *node)
+{
+    BTNode *temp = node;
+    if(temp == NULL)
+        return NULL;
+    if(temp->left == NULL)
+        printf("%d " , temp->item);
+    else
+    {
+        printTreePostfix(temp->left);
+        printTreePostfix(temp->right);
+        printf("%c " , temp->item);
+    }
+}
+
+double computeTree(BTNode *node)
+{
+    BTNode *temp = node;
+    if(temp == NULL)
+        return 0;
+    if(temp->left == NULL || temp->right == NULL)
+        return temp->item;
+    if(temp->item == '+')
+        return (computeTree(temp->left) + computeTree(temp->right));
+    else if(temp->item == '-')
+        return (computeTree(temp->left) - computeTree(temp->right));
+    else if(temp->item == '*')
+        return (computeTree(temp->left) * computeTree(temp->right));
+    else
+        return (computeTree(temp->left) / computeTree(temp->right));
+
+}
