@@ -1,15 +1,81 @@
-Q1 Write a C program to convert an infix expression to a postfix expression. The input and the output of
-the function are character strings. The input expression contains only four possible operators: +, -, *
-and /. Operands can be any alphanumeric. Each operand is represented by a character symbol. The
-parentheses are allowed in the input expression. You may assume that the expression is always valid.
-
-void in2Post ( char * infix , char * postfix )
-
-Q2 Write a C program to evaluate a postfix expression. You may assume that operands are single-digit
-numbers. The function prototype is given below:
-
-double exePostfix ( char * postfix )
-
 Q3 Write a C program to convert an infix expression to a prefix expression.
 
 void in2Pre ( char * infix , char * prefix )
+
+
+void in2Pre(char* infix, char* prefix)
+{
+   Stack s;
+   s.head = NULL;
+   s.size = 0;
+
+   char revInfix[SIZE];
+   char revPrefix[SIZE];
+   int i=0;
+   int j = 0;
+   char c;
+   int count =0;
+
+   //reverse the string
+   while(infix[count]!='\0')count++;
+   for(i=count-1;i>=0;i--)
+    revInfix[count-1-i] = infix[i];
+   revInfix[count]='\0';
+
+   i=0;
+   while(i<SIZE && revInfix[i]!='\0')
+    {
+        c = revInfix[i++];
+        switch(c)
+        {
+        case '*': //operators
+        case '/':
+        case '+':
+        case '-':
+            while(isEmptyStack(s)==0 && peek(s) != ')' && precedence(peek(s)) > precedence(c) ) //note the precedence comparison
+            {
+                revPrefix[j++] = peek(s);
+                pop(&s);
+            }
+            push(&s,c);
+            break;
+        case ')':
+            push(&s,c);
+            break;
+        case '(':
+            while(isEmptyStack(s)==0)
+            {
+                if(peek(s)!=')')
+                {
+                    revPrefix[j++]=peek(s);
+                    pop(&s);
+                }
+                else
+                {
+                    pop(&s);
+                    break;
+                }
+            }
+            break;
+        default: //operand
+            revPrefix[j++] = c;
+        }
+    }
+
+    while(isEmptyStack(s)==0)
+    {
+        revPrefix[j++] = peek(s);
+        pop(&s);
+    }
+    revPrefix[j] = '\0';
+
+   //reverse the string
+  count=0;
+  while(revPrefix[count]!='\0')count++;
+    for(i=count-1;i>=0;i--)
+    {
+        prefix[count-1-i] = revPrefix[i];
+    }
+    prefix[count]='\0';
+
+}
