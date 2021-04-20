@@ -13,3 +13,167 @@ double exePostfix ( char * postfix )
 Q3 Write a C program to convert an infix expression to a prefix expression.
 
 void in2Pre ( char * infix , char * prefix )
+
+
+void in2Post(char* infix, char* postfix)
+{
+    Stack s;
+    s.head = NULL;
+    s.size = 0;
+    int i = 0;
+    int y = 0;
+    int op1;
+
+    while(infix[i] != '\0')
+    {
+        if((infix[i] >= 65 && infix[i] <= 90) || (infix[i] >= 97 && infix[i] <= 122) || (infix[i] >= 49 && infix[i] <= 57))
+        {
+            postfix[y] = infix[i];
+            y++;
+        }
+        else if(infix[i] == '(')
+        {
+            push(&s , infix[i]);
+        }
+        else if(infix[i] == ')')
+        {
+            while(peek(s) != '(')
+            {
+                op1 = peek(s);
+                postfix[y] = op1;
+                y++;
+                pop(&s);
+            }
+            pop(&s);
+        }
+        else
+        {
+            while(!isEmptyStack(s) && peek(s) != '(' && precedence(peek(s) , infix[i]))
+            {
+                op1 = peek(s);
+                postfix[y] = op1;
+                y++;
+                pop(&s);
+            }
+            push(&s , infix[i]);
+        }
+
+        i++;
+    }
+    while(!isEmptyStack(s))
+    {
+        op1 = peek(s);
+        postfix[y] = op1;
+        y++;
+        pop(&s);
+    }
+}
+
+
+double exePostfix(char* postfix)
+{
+	Stack s;
+	s.head = NULL;
+	s.size = 0;
+
+	int i = 0;
+	double op1 = 0;
+	double op2 = 0;
+	double op3 = 0;
+	while(postfix[i] != '\0')
+    {
+        if(postfix[i] == '+' || postfix[i] == '-' || postfix[i] == '/' || postfix[i] == '*')
+        {
+            op2 = peek(s);
+            pop(&s);
+            op1 = peek(s);
+            pop(&s);
+            op3 = Evaluate((char)postfix[i] , op2 , op1);
+            push(&s , op3);
+        }
+        else
+        {
+            op1 = postfix[i];
+            push(&s , (op1 - 48));
+        }
+        i++;
+    }
+    return peek(s);
+}
+
+void in2Pre(char* infix, char* prefix)
+{
+   Stack s;
+   s.head = NULL;
+   s.size = 0;
+
+   char revInfix[SIZE];
+   char revPrefix[SIZE];
+   int i=0;
+   int j = 0;
+   char c;
+   int count =0;
+
+   //reverse the string
+   while(infix[count]!='\0')count++;
+   for(i=count-1;i>=0;i--)
+    revInfix[count-1-i] = infix[i];
+   revInfix[count]='\0';
+
+   i=0;
+   while(i<SIZE && revInfix[i]!='\0')
+    {
+        c = revInfix[i++];
+        switch(c)
+        {
+        case '*': //operators
+        case '/':
+        case '+':
+        case '-':
+            while(isEmptyStack(s)==0 && peek(s) != ')' && precedence(peek(s)) > precedence(c) ) //note the precedence comparison
+            {
+                revPrefix[j++] = peek(s);
+                pop(&s);
+            }
+            push(&s,c);
+            break;
+        case ')':
+            push(&s,c);
+            break;
+        case '(':
+            while(isEmptyStack(s)==0)
+            {
+                if(peek(s)!=')')
+                {
+                    revPrefix[j++]=peek(s);
+                    pop(&s);
+                }
+                else
+                {
+                    pop(&s);
+                    break;
+                }
+            }
+            break;
+        default: //operand
+            revPrefix[j++] = c;
+        }
+    }
+
+    while(isEmptyStack(s)==0)
+    {
+        revPrefix[j++] = peek(s);
+        pop(&s);
+    }
+    revPrefix[j] = '\0';
+
+   //reverse the string
+  count=0;
+  while(revPrefix[count]!='\0')count++;
+    for(i=count-1;i>=0;i--)
+    {
+        prefix[count-1-i] = revPrefix[i];
+    }
+    prefix[count]='\0';
+
+}
