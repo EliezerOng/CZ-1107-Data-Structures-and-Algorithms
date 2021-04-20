@@ -103,77 +103,73 @@ double exePostfix(char* postfix)
 
 void in2Pre(char* infix, char* prefix)
 {
-   Stack s;
-   s.head = NULL;
-   s.size = 0;
+    Stack s;
+    s.head = NULL;
+    s.size = 0;
 
-   char revInfix[SIZE];
-   char revPrefix[SIZE];
-   int i=0;
-   int j = 0;
-   char c;
-   int count =0;
+    char revInfix[SIZE];
+    char revPrefix[SIZE];
+    int i=0;
+    int j = 0;
+    char c;
+    int count =0;
+    int op1;
 
-   //reverse the string
-   while(infix[count]!='\0')count++;
-   for(i=count-1;i>=0;i--)
-    revInfix[count-1-i] = infix[i];
-   revInfix[count]='\0';
-
-   i=0;
-   while(i<SIZE && revInfix[i]!='\0')
+    //reverse the string
+    while(infix[count] != '\0')
+        count++;
+    for(i = count-1;i>=0;i--)
     {
-        c = revInfix[i++];
-        switch(c)
+        revInfix[count-1-i] = infix[i];
+    }
+    revInfix[count] = '\0';
+
+    i = 0;
+    while(revInfix[i] != '\0')
+    {
+        if((revInfix[i] >= 49 && revInfix[i] <= 57) || (revInfix[i] >= 65 && revInfix[i] <= 90) || (revInfix[i] >= 97 && revInfix[i] <= 122))
         {
-        case '*': //operators
-        case '/':
-        case '+':
-        case '-':
-            while(isEmptyStack(s)==0 && peek(s) != ')' && precedence(peek(s)) > precedence(c) ) //note the precedence comparison
+            revPrefix[j++] = revInfix[i];
+        }
+        else if(revInfix[i] == ')')
+            push(&s , revInfix[i]);
+        else if(revInfix[i] == '(')
+        {
+            while(peek(s) != ')')
             {
-                revPrefix[j++] = peek(s);
+                op1 = peek(s);
+                revPrefix[j++] = op1;
                 pop(&s);
             }
-            push(&s,c);
-            break;
-        case ')':
-            push(&s,c);
-            break;
-        case '(':
-            while(isEmptyStack(s)==0)
-            {
-                if(peek(s)!=')')
-                {
-                    revPrefix[j++]=peek(s);
-                    pop(&s);
-                }
-                else
-                {
-                    pop(&s);
-                    break;
-                }
-            }
-            break;
-        default: //operand
-            revPrefix[j++] = c;
+            pop(&s);
         }
+        else
+        {
+            while(!isEmptyStack(s) && peek(s) != ')' && precedence(peek(s)) > precedence(revInfix[i]))
+            {
+                op1 = peek(s);
+                revPrefix[j++] = op1;
+                pop(&s);
+            }
+            push(&s , revInfix[i]);
+        }
+        i++;
     }
-
-    while(isEmptyStack(s)==0)
+    while(!isEmptyStack(s))
     {
-        revPrefix[j++] = peek(s);
+        op1 = peek(s);
+        revPrefix[j++] = op1;
         pop(&s);
     }
-    revPrefix[j] = '\0';
 
-   //reverse the string
-  count=0;
-  while(revPrefix[count]!='\0')count++;
-    for(i=count-1;i>=0;i--)
+    revPrefix[j] = '\0';
+    count = 0;
+    while(revPrefix[count] != '\0')
+        count++;
+    for(i = count-1;i>=0;i--)
     {
-        prefix[count-1-i] = revPrefix[i];
+        prefix[count-i-1] = revPrefix[i];
     }
-    prefix[count]='\0';
+    prefix[count] = '\0';
 
 }
