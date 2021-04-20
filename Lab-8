@@ -1,0 +1,81 @@
+Q1 Write a function DFS I() to do a depth search from a input vertex v. The labels of v are from 1 to
+|V |. The algorithm will visit the neighbor nodes in ascending order.
+
+Q2 Rewrite a depth search algorithm in a recursive approach.
+
+Q3 Write a function, nQueens(), to print out all the possible solutions of the N-queen problem.
+
+void DFS_I (Graph g, int v)
+{
+    Stack s;
+    s.head = NULL;
+    s.size = 0;
+
+    int visited[g.V];
+    int i,w;
+    for(i = 0;i < g.V;i++)
+        visited[i] = 0;
+    int adj;
+
+    push(&s , v);
+    visited[v-1] = 1;
+    while(!isEmptyStack(s))
+    {
+        w = peek(s);
+        adj = 0;
+        for(i = 0;i < g.V;i++)
+        {
+            if(g.matrix[w-1][i] == 1)
+            {
+                if(visited[i] != 1)
+                {
+                    push(&s , i+1);
+                    visited[i] = 1;
+                    adj = 1;
+                    break;
+                }
+            }
+        }
+        if(adj == 0)
+        {
+            printf("%d " , w);
+            pop(&s);
+        }
+    }
+}
+
+void DFS_R (Graph_DFS g, int v)
+{
+    int i;
+    int *visited;
+
+    visited[v-1] = 1;
+    for(i = 0;i<g.V;i++)
+    {
+        if(g.matrix[v-1][i] == 1 && g.visited[i] == 0)
+            DFS_R(g , i+1);
+    }
+    printf("%d " , v);
+
+}
+
+int nQueens(int** board, int BSize, int col)
+{
+    if(col == BSize)
+    {
+        printSolution(board , BSize);
+        return 1;
+    }
+    int i;
+    for(i = 0;i < BSize;i++)
+    {
+        if(isSafe(board , BSize , i , col))
+        {
+            board[i][col] = 1;
+            nQueens(board , BSize , col+1);
+            board[i][col] = 0;
+        }
+    }
+    return 0;
+
+}
