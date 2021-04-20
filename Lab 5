@@ -5,56 +5,11 @@ parentheses are allowed in the input expression. You may assume that the express
 
 void in2Post ( char * infix , char * postfix )
 
+Q2 Write a C program to evaluate a postfix expression. You may assume that operands are single-digit
+numbers. The function prototype is given below:
 
-void in2Post(char* infix, char* postfix)
-{
-    Stack s;
-    s.head = NULL;
-    s.size = 0;
-    int i = 0;
-    int y = 0;
-    int op1;
+double exePostfix ( char * postfix )
 
-    while(infix[i] != '\0')
-    {
-        if((infix[i] >= 65 && infix[i] <= 90) || (infix[i] >= 97 && infix[i] <= 122) || (infix[i] >= 49 && infix[i] <= 57))
-        {
-            postfix[y] = infix[i];
-            y++;
-        }
-        else if(infix[i] == '(')
-            push(&s , infix[i]);
-            
-        else if(infix[i] == ')')
-        {
-            while(peek(s) != '(')
-            {
-                op1 = peek(s);
-                postfix[y] = op1;
-                y++;
-                pop(&s);
-            }
-            pop(&s);
-        }
-        else
-        {
-            while(!isEmptyStack(s) && peek(s) != '(' && precedence(peek(s) , infix[i]))
-            {
-                op1 = peek(s);
-                postfix[y] = op1;
-                y++;
-                pop(&s);
-            }
-            push(&s , infix[i]);
-        }
+Write a C program to convert an infix expression to a prefix expression.
 
-        i++;
-    }
-    while(!isEmptyStack(s))
-    {
-        op1 = peek(s);
-        postfix[y] = op1;
-        y++;
-        pop(&s);
-    }
-}
+void in2Pre ( char * infix , char * prefix )
